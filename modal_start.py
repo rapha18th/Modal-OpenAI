@@ -39,28 +39,6 @@ def infer(prompt: str, model_id: str = "openai/gpt-oss-20b"):
     last = outputs[0]["generated_text"][-1]
     return last["content"] if isinstance(last, dict) and "content" in last else str(last)
 
-# Add HTTP endpoint
-@app.function(gpu="A100", timeout=900)
-@modal.web_endpoint(method="POST")
-def generate_endpoint(request_data: dict):
-    """HTTP endpoint for text generation"""
-    prompt = request_data.get("prompt", "Tell me a story.")
-    model_id = request_data.get("model_id", "openai/gpt-oss-20b")
-    
-    try:
-        result = infer(prompt, model_id)
-        return {
-            "success": True,
-            "generated_text": result,
-            "model_used": model_id
-        }
-    except Exception as e:
-        return {
-            "success": False,
-            "error": str(e),
-            "model_used": model_id
-        }
-
 @app.local_entrypoint()
 def main(
     prompt: str = "You are a cultural historian. Tell me about Paris in 1920.",
